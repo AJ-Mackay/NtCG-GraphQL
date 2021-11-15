@@ -34,12 +34,12 @@ module.exports = {
     const user = new User({
       email: userInput.email,
       name: userInput.name,
-      password: hashedPw
+      password: hashedPw,
     });
     const createdUser = await user.save();
     return { ...createdUser._doc, _id: createdUser._id.toString() };
   },
-  login: async function({ email, password }) {
+  login: async function ({ email, password }) {
     const user = await User.findOne({ email: email });
     if (!user) {
       const error = new Error('User not found.');
@@ -55,7 +55,7 @@ module.exports = {
     const token = jwt.sign(
       {
         userId: user._id.toString(),
-        email: user.email
+        email: user.email,
       },
       'somesupersecretsecret',
       { expiresIn: '1h' }
@@ -97,7 +97,7 @@ module.exports = {
       title: postInput.title,
       content: postInput.content,
       imageUrl: postInput.imageUrl,
-      creator: user
+      creator: user,
     });
     const createdPost = await post.save();
     user.posts.push(createdPost);
@@ -106,10 +106,10 @@ module.exports = {
       ...createdPost._doc,
       _id: createdPost._id.toString(),
       createdAt: createdPost.createdAt.toISOString(),
-      updatedAt: createdPost.updatedAt.toISOString()
+      updatedAt: createdPost.updatedAt.toISOString(),
     };
   },
-  posts: async function({ page }, req) {
+  posts: async function ({ page }, req) {
     if (!req.isAuth) {
       const error = new Error('Not authenticated!');
       error.code = 401;
@@ -126,15 +126,15 @@ module.exports = {
       .limit(perPage)
       .populate('creator');
     return {
-      posts: posts.map(p => {
+      posts: posts.map((p) => {
         return {
           ...p._doc,
           _id: p._id.toString(),
           createdAt: p.createdAt.toISOString(),
-          updatedAt: p.updatedAt.toISOString()
+          updatedAt: p.updatedAt.toISOString(),
         };
       }),
-      totalPosts: totalPosts
+      totalPosts: totalPosts,
     };
   },
   post: async function({ id }, req) {
@@ -153,7 +153,7 @@ module.exports = {
       ...post._doc,
       _id: post._id.toString(),
       createdAt: post.createdAt.toISOString(),
-      updatedAt: post.updatedAt.toISOString()
+      updatedAt: post.updatedAt.toISOString(),
     };
   },
   updatePost: async function({ id, postInput }, req) {
@@ -202,7 +202,7 @@ module.exports = {
       ...updatedPost._doc,
       _id: updatedPost._id.toString(),
       createdAt: updatedPost.createdAt.toISOString(),
-      updatedAt: updatedPost.updatedAt.toISOString()
+      updatedAt: updatedPost.updatedAt.toISOString(),
     };
   },
   deletePost: async function({ id }, req) {
@@ -228,5 +228,35 @@ module.exports = {
     user.posts.pull(id);
     await user.save();
     return true;
+  },
+  user: async function(args, req) {
+    if (!req.isAuth) {
+      const error = new Error('Not authenticated!');
+      error.code = 401;
+      throw error;
+    }
+    const user = await User.findById(req.userId);
+    if (!user) {
+      const error = new Error('No user found!');
+      error.code = 404;
+      throw error;
+    }
+    return { ...user._doc, _id: user._id.toString() };
+  },
+  updateStatus: async function({status}, req) {
+    if (!req.isAuth) {
+      const error = new Error('Not authenticated!');
+      error.code = 401;
+      throw error;
+    }
+    const user = await User.findById(req.userId);
+    if (!user) {
+      const error = new Error('No user found!');
+      error.code = 404;
+      throw error;
+    }
+    user.status = status;
+    await user.save();
+    return {...user._doc, _id: user._id.toString()};
   }
 };
