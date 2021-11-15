@@ -84,8 +84,8 @@ class Feed extends Component {
         }
       `,
       variables: {
-        page: page
-      }
+        page: page,
+      },
     };
     fetch('http://localhost:8080/graphql', {
       method: 'POST',
@@ -127,8 +127,8 @@ class Feed extends Component {
         }
       `,
       variables: {
-        userStatus: this.state.status
-      }
+        userStatus: this.state.status,
+      },
     };
     fetch('http://localhost:8080/graphql', {
       method: 'POST',
@@ -203,11 +203,11 @@ class Feed extends Component {
             }
           }
         `,
-        variables: {
-          title: postData.title,
-          content: postData.content,
-          imageUrl: imageUrl
-        }
+          variables: {
+            title: postData.title,
+            content: postData.content,
+            imageUrl: imageUrl,
+          },
         };
 
         if (this.state.editPost) {
@@ -230,8 +230,8 @@ class Feed extends Component {
               postId: this.state.editPost._id,
               title: postData.title,
               content: postData.content,
-              imageUrl: imageUrl
-            }
+              imageUrl: imageUrl,
+            },
           };
         }
 
@@ -270,12 +270,14 @@ class Feed extends Component {
         };
         this.setState((prevState) => {
           let updatedPosts = [...prevState.posts];
+          let updatedTotalPosts = prevState.totalPosts;
           if (prevState.editPost) {
             const postIndex = prevState.posts.findIndex(
               (p) => p._id === prevState.editPost._id
             );
             updatedPosts[postIndex] = post;
           } else {
+            updatedTotalPosts++;
             if (prevState.posts.length >= 2) {
               updatedPosts.pop();
             }
@@ -286,6 +288,7 @@ class Feed extends Component {
             isEditing: false,
             editPost: null,
             editLoading: false,
+            totalPosts: updatedTotalPosts,
           };
         });
       })
