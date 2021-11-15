@@ -24,7 +24,7 @@ class Feed extends Component {
   componentDidMount() {
     fetch('http://localhost:8080/auth/status', {
       headers: {
-        Authorization: 'Bearer ' + this.props.token
+        Authorization: 'Bearer ' + this.props.token,
       },
     })
       .then((res) => {
@@ -56,30 +56,29 @@ class Feed extends Component {
     }
     const graphqlQuery = {
       query: `
-      {
-      posts(page: ${page}) {
-        posts {
-          _id
-          title
-          content
-          imageUrl
-          creator {
-            name
+        {
+          posts(page: ${page}) {
+            posts {
+              _id
+              title
+              content
+              creator {
+                name
+              }
+              createdAt
+            }
+            totalPosts
           }
-          createdAt
         }
-        totalPosts
-      }
-    }
       `,
     };
     fetch('http://localhost:8080/graphql', {
       method: 'POST',
       headers: {
         Authorization: 'Bearer ' + this.props.token,
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
       },
-      body: JSON.stringify(graphqlQuery)
+      body: JSON.stringify(graphqlQuery),
     })
       .then((res) => {
         return res.json();
@@ -108,11 +107,11 @@ class Feed extends Component {
       method: 'PATCH',
       headers: {
         Authorization: 'Bearer ' + this.props.token,
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        status: this.state.status
-      })
+        status: this.state.status,
+      }),
     })
       .then((res) => {
         if (res.status !== 200 && res.status !== 201) {
@@ -157,7 +156,7 @@ class Feed extends Component {
     fetch('http://localhost:8080/post-image', {
       method: 'PUT',
       headers: {
-        Authorization: 'Bearer ' + this.props.token
+        Authorization: 'Bearer ' + this.props.token,
       },
       body: formData,
     })
@@ -167,9 +166,7 @@ class Feed extends Component {
         let graphqlQuery = {
           query: `
           mutation {
-            createPost(postInput: {title: "${postData.title}", content: "${
-              postData.content
-            }", imageUrl: "${imageUrl}"}) {
+            createPost(postInput: {title: "${postData.title}", content: "${postData.content}", imageUrl: "${imageUrl}"}) {
               _id
               title
               content
@@ -180,7 +177,7 @@ class Feed extends Component {
               createdAt
             }
           }
-        `
+        `,
         };
 
         return fetch('http://localhost:8080/graphql', {
@@ -188,8 +185,8 @@ class Feed extends Component {
           body: JSON.stringify(graphqlQuery),
           headers: {
             Authorization: 'Bearer ' + this.props.token,
-            'Content-Type': 'application/json'
-          }
+            'Content-Type': 'application/json',
+          },
         });
       })
       .then((res) => {
@@ -211,13 +208,13 @@ class Feed extends Component {
           content: resData.data.createPost.content,
           creator: resData.data.createPost.creator,
           createdAt: resData.data.createPost.createdAt,
-          imagePath: resData.data.createPost.imageUrl
+          imagePath: resData.data.createPost.imageUrl,
         };
         this.setState((prevState) => {
           let updatedPosts = [...prevState.posts];
           if (prevState.editPost) {
             const postIndex = prevState.posts.findIndex(
-              p => p._id === prevState.editPost._id
+              (p) => p._id === prevState.editPost._id
             );
             updatedPosts[postIndex] = post;
           } else {
@@ -228,7 +225,7 @@ class Feed extends Component {
             posts: updatedPosts,
             isEditing: false,
             editPost: null,
-            editLoading: false
+            editLoading: false,
           };
         });
       })
@@ -238,7 +235,7 @@ class Feed extends Component {
           isEditing: false,
           editPost: null,
           editLoading: false,
-          error: err
+          error: err,
         });
       });
   };
